@@ -6,20 +6,26 @@ import time
 
 import tabulate
 
+# Global variables
+ClientRecords = []
+
+
 def handle_request(name: str, code: str):
     # Check RR table for record
-    for records in RRTable.records:
-        if records.name == name and records.type == code:
-            #I keep getting an error here, I'm not sure what to do.  The error is "AttributeError: 'RRTable' object has no attribute 'records'"
-
+    # If found, display the record
     # If not found, ask the local DNS server, then save the record if valid
-    local_dns_address = ("127.0.0.1", 21000)
-
+    # local_dns_address = ("127.0.0.1", 21000)
     # The format of the DNS query and response is in the project description
 
-    # Display RR table
-    RRTable.display_table()
-    pass
+    for record in ClientRecords:
+        if record.name == name and record.type == code:
+            #if record found, display the record
+            display_table(ClientRecords)
+        else
+            #if record not found, ask local DNS server
+            local_dns_address = ("127.0.0.1", 21000)
+            display_table(ClientRecords)
+pass
 
 
 def main():
@@ -58,6 +64,7 @@ def deserialize():
 
 class RRTable:
     def __init__(self):
+        self.records = []
         # self.records = ?
         self.record_number = 0
 
@@ -78,9 +85,8 @@ class RRTable:
         with self.lock:
             # Display the table in the following format (include the column names):
             # record_number,name,type,result,ttl,static
-
-            table = tabulate(self.records, headers=["Name", "Type", "Result", "TTL", "Static"])
-            print(table)
+            headers = ["Name", "Type", "Result", "TTL", "Static"]
+            print(tabulate.tabulate(ClientRecords, headers=headers))
 
     def __decrement_ttl(self):
         while True:
@@ -88,7 +94,7 @@ class RRTable:
                 # Decrement ttl
                 if self.TTL >= 0:
                     self.TTL -= 1
-                else
+                else:
                     self.__remove_expired_records()
             time.sleep(1)
 
